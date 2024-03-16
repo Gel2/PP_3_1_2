@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form th:method="POST" th:action="@{/admin/users/update(id=${person.getId()})}" th:object="${person}">
+    <label for="username">Username:</label>
+    <input type="text" th:field="*{username}" id="username"/>
+
+    <label for="age">Age:</label>
+    <input type="text" th:field="*{age}" id="age"/>
+
+    <label for="password">Password</label>
+    <input type="password" th:field="*{password}"/>
+
+    <label for="role">Role:</label>
+    <select th:field="*{roleList}" id="role" multiple>
+        <option th:each="role : ${allRoles}" th:value="${role.id}" th:text="${role.name}"></option>
+    </select>
+
+
+    <button type="submit">Submit</button>
+</form>
+
+</body>
+</html>

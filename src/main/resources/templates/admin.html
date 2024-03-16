@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        .logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .create-user-link {
+            position: absolute;
+            top: 10px;
+            right: 100px;
+        }
+    </style>
+</head>
+<body>
+<a href="/admin/users/new" class="create-user-link">Create New User</a> <!-- Добавляем ссылку на создание нового пользователя -->
+<form th:action="@{/logout}" method="post">
+    <input type="submit" class="logout-btn" value="Logout"/>
+</form>
+
+<div th:if="${param.error}">
+    <p style="color: red;">An error occurred during logout.</p>
+</div>
+
+<h1>Welcome to Admin Panel</h1>
+
+<h2>Users:</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Role</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${person}">
+        <td th:text="${user.getId()}"></td>
+        <td th:text="${user.getUsername()}"></td>
+        <td>
+            <span th:each="role : ${user.roleList}">
+                <span th:text="${role.getName()}"></span>
+                <span th:if="${!#lists.isEmpty(user.roleList) and !#strings.endsWith(role.getName(), ',')}">, </span>
+            </span>
+        </td>
+        <td><a th:href="@{/admin/users/edit(id=${user.id})}">Edit</a></td>
+        <td>
+            <form th:method="POST" th:action="@{/admin/users/delete}">
+                <input type="hidden" name="id" th:value="${user.id}" />
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

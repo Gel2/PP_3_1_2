@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User</title>
+</head>
+<body>
+<p>Имя пользователя: <span th:text="${person.getUsername()}"></span></p>
+<p>Возраст пользователя: <span th:text="${person.getAge()}"></span></p>
+<p>ID пользователя: <span th:text="${person.getId()}"></span></p>
+
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Logout"/>
+</form>
+
+<div th:if="${param.error}">
+    <p style="color: red;">An error occurred during logout.</p>
+</div>
+
+</body>
+</html>
