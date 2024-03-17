@@ -21,8 +21,10 @@ public class UserController {
     @GetMapping("/user")
     public String getUserPage(Model model, Principal principal) {
         String username = principal.getName();
-        Person person = personRepository.findByUsername(username).get();
+        Person person = personRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Person not found"));
         model.addAttribute("person", person);
         return "/user";
     }
+
 }
