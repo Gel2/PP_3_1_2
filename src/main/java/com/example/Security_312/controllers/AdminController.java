@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Controller
@@ -38,44 +39,54 @@ public class AdminController {
     }
 
 
-    //Получение пользователя по id
-    @GetMapping("/users/show")
-    public String getUser(@RequestParam("id") long id, Model model) {
-        Optional<Person> userOpt = personService.findById(id);
-        Person user = userOpt.get();
-        model.addAttribute("person", user);
-        return "/show";
-    }
+//    //Получение пользователя по id
+//    @GetMapping("users/show")
+//    public String getUser(@RequestParam("id") long id, Model model) {
+//        Optional<Person> userOpt = personService.findById(id);
+//        Person user = userOpt.orElseThrow(() -> new NoSuchElementException("User not found")); // Выбросить исключение, если значение отсутствует
+//        model.addAttribute("person", user);
+//        return "/show";
+//    }
+
 
     //Создание нового пользователя
-    @GetMapping("/users/new")
+    @GetMapping("users/new")
     public String newUser(Model model) {
         model.addAttribute("person", new Person());
         return "/new";
     }
 
-    @PostMapping("/users")
-    public String addUser(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult) {
+    @PostMapping("users")
+    public String addUser(@ModelAttribute("person") @Valid Person person, BindingResult bindingResult, Model model) {
         personValidator.validate(person, bindingResult);
         if (bindingResult.hasErrors()) {
             return "/new"; // Вернуть страницу регистрации с ошибками
         }
-        personService.save(person);
+
+        try {
+            personService.save(person);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage()); // Передать сообщение об ошибке на страницу
+            return "/new"; // Вернуть страницу регистрации с сообщением об ошибке
+        }
+
         return "redirect:/admin";
     }
 
-    @GetMapping("/users/edit")
+    @GetMapping("users/edit")
     public String editUser(@RequestParam("id") Long id, Model model) {
         Optional<Person> userOpt = personService.findById(id);
-        Person user = userOpt.get();
+        Person user = userOpt.orElseThrow(() -> new NoSuchElementException("User not found")); // Выбросить исключение, если значение отсутствует
+
         List<Role> listRole = roleRepository.findAll();
         model.addAttribute("person", user);
         model.addAttribute("allRoles", listRole);
         return "/edit";
     }
 
-    @PostMapping("/users/update")
-    public String updateUser(@ModelAttribute("person") Person updatedPerson, @RequestParam("id") Long id) {
+
+    @PostMapping("users/update")
+    public String updateUser(@ModelAttribute("person") Person updatedPerson, @RequestParam("id") Long id, Model model) {
         Person existingPerson = personService.findById(id).orElse(null);
 
         if (existingPerson != null) {
@@ -85,13 +96,15 @@ public class AdminController {
             existingPerson.setPassword(updatedPerson.getPassword()); // Передаем пароль из формы
 
             personService.update(id, existingPerson);
+        } else {
+            model.addAttribute("error", "User not found."); // Добавляем пользовательское сообщение об ошибке
         }
 
         return "redirect:/admin";
     }
 
 
-    @PostMapping("/users/delete")
+    @PostMapping("users/delete")
     public String deleteUser(@RequestParam("id") Long id) {
         personService.remove(id);
         return "redirect:/admin";
