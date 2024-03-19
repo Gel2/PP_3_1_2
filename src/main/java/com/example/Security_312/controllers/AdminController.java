@@ -2,7 +2,6 @@ package com.example.Security_312.controllers;
 
 import com.example.Security_312.models.Person;
 import com.example.Security_312.models.Role;
-import com.example.Security_312.repositories.PersonRepository;
 import com.example.Security_312.repositories.RoleRepository;
 import com.example.Security_312.service.PersonService;
 import com.example.Security_312.util.PersonValidator;
@@ -12,7 +11,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -20,13 +18,12 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
     private final PersonService personService;
     private final PersonValidator personValidator;
 
-    public AdminController(PersonRepository personRepository, RoleRepository roleRepository, PersonService personService, PersonValidator personValidator) {
-        this.personRepository = personRepository;
+    public AdminController(RoleRepository roleRepository, PersonService personService, PersonValidator personValidator) {
+
         this.roleRepository = roleRepository;
         this.personService = personService;
         this.personValidator = personValidator;
@@ -75,7 +72,7 @@ public class AdminController {
 
     @GetMapping("users/edit")
     public String editUser(@RequestParam("id") Long id, Model model) {
-        Optional<Person> userOpt = personService.findById(id);
+        Optional<Person> userOpt = Optional.ofNullable(personService.findById(id));
         Person user = userOpt.orElseThrow(() -> new NoSuchElementException("User not found")); // Выбросить исключение, если значение отсутствует
 
         List<Role> listRole = roleRepository.findAll();
@@ -87,11 +84,12 @@ public class AdminController {
 
     @PostMapping("users/update")
     public String updateUser(@ModelAttribute("person") Person updatedPerson, @RequestParam("id") Long id, Model model) {
-        Person existingPerson = personService.findById(id).orElse(null);
+        Person existingPerson = personService.findById(id);
 
         if (existingPerson != null) {
             // Обновляем только измененные поля
             existingPerson.setUsername(updatedPerson.getUsername());
+            existingPerson.setAge(updatedPerson.getAge());
             existingPerson.setRoleList(updatedPerson.getRoleList()); // Передаем роли из формы
             existingPerson.setPassword(updatedPerson.getPassword()); // Передаем пароль из формы
 

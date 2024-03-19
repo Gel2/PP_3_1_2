@@ -1,5 +1,7 @@
 package com.example.Security_312.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -48,7 +50,7 @@ public class Person {
     @Size(min = 2, max = 100, message = "Имя должно быть от 2 до 100 символов длиной")
     @Column(name = "username")
     private String username;
-
+    @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "Person_Role",

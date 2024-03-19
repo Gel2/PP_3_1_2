@@ -25,8 +25,8 @@ public class PersonService {
         return personRepository.findAll();
     }
 
-    public Optional<Person> findById(long id) {
-        return personRepository.findById(id);
+    public Person findById(long id) {
+        return personRepository.findById(id).get();
     }
 
     public void save(Person person) {
@@ -35,8 +35,8 @@ public class PersonService {
     }
 
     public void update(Long id, Person person) {
-        person.setId(id);
-        personRepository.save(person);
+        person.setPassword(passwordEncoder.encode(person.getPassword()));
+        personRepository.saveAndFlush(person);
     }
 
     public void remove(Long id) {
