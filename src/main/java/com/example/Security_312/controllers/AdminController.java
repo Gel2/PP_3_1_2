@@ -4,6 +4,7 @@ import com.example.Security_312.models.Person;
 import com.example.Security_312.models.Role;
 import com.example.Security_312.repositories.RoleRepository;
 import com.example.Security_312.service.PersonService;
+import com.example.Security_312.service.RoleService;
 import com.example.Security_312.util.PersonValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,13 +19,13 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final PersonService personService;
     private final PersonValidator personValidator;
 
-    public AdminController(RoleRepository roleRepository, PersonService personService, PersonValidator personValidator) {
+    public AdminController(RoleService roleService, PersonService personService, PersonValidator personValidator) {
 
-        this.roleRepository = roleRepository;
+        this.roleService = roleService;
         this.personService = personService;
         this.personValidator = personValidator;
     }
@@ -75,7 +76,7 @@ public class AdminController {
         Optional<Person> userOpt = Optional.ofNullable(personService.findById(id));
         Person user = userOpt.orElseThrow(() -> new NoSuchElementException("User not found")); // Выбросить исключение, если значение отсутствует
 
-        List<Role> listRole = roleRepository.findAll();
+        List<Role> listRole = roleService.getAllRole();
         model.addAttribute("person", user);
         model.addAttribute("allRoles", listRole);
         return "/edit";
